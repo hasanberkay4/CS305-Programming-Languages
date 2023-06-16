@@ -1,0 +1,71 @@
+%{
+    #include "hasanberkay-hw3.h"
+    #include "hasanberkay-hw3.tab.h" 
+    int lineCount = 1;
+%}
+%%
+
+['][^']*[']		{
+                    int length = strlen(yytext) - 2;
+                    char* result = (char*) malloc(length + 1);
+                    strncpy(result, yytext + 1, length);
+                    result[length] = '\0';
+                    yylval.stringValue = result;
+                    return tSTRING;
+                }
+
+["]Get["]		return tGET;
+["]Set["]		return tSET;
+["]Function["]		return tFUNCTION;
+["]Print["]		return tPRINT;
+["]If["]		return tIF;
+["]Return["]		return tRETURN;
+
+["]"+"["]       {
+                    yylval.opNode.lineNum = lineCount;
+                    yylval.opNode.opType = ADD; 
+                    return tADD;
+                }
+["]"-"["]       {
+                    yylval.opNode.lineNum = lineCount;
+                    yylval.opNode.opType = SUB;     
+                    return tSUB;
+                }
+["]"*"["]       {
+                    yylval.opNode.lineNum = lineCount;
+                    yylval.opNode.opType = MUL;     
+                    return tMUL;
+                }
+["]"/"["]       {
+                    yylval.opNode.lineNum = lineCount;
+                    yylval.opNode.opType = DIV;     
+                    return tDIV;
+                }
+["]"++"["]		return tINC;
+["]">"["]		return tGT;
+["]"=="["]		return tEQUALITY;
+["]"--"["]		return tDEC;
+["]"<"["]		return tLT;
+["]"<="["]		return tLEQ;
+["]">="["]		return tGEQ;
+
+
+["][_a-zA-Z][a-zA-Z0-9_]*["]	return tIDENT;
+				
+[0-9]+ |
+-[0-9]+             {
+                        yylval.intValue = atoi(yytext);
+                        return tNUM;
+                    }
+
+[0-9]+"."[0-9]+	|
+-[0-9]+"."[0-9]+    {
+                        yylval.realValue = atof(yytext);
+                        return tREAL;
+                    }
+	
+[\n] lineCount++;
+[ \t\r]+ 
+.			return yytext[0];
+
+%%
